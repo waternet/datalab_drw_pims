@@ -1,6 +1,8 @@
 # datalab_drw_pims
 PIMS data wrapper
 
+**NB** je hebt een ww.py bestand nodig met de urls naar de pims database, deze is niet meegenomen in de wrapper om misbruik te voorkomen.
+
 ### voorbeelden van beschikbare functies 
 Hieronder enkele voorbeelden van het gebruik van de python wrapper.
 
