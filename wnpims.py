@@ -24,7 +24,9 @@ class API:
         output: output format of the result (default pandas)
 
         OUTPUT
-        Pandas DataFrame or none in case of error
+        output='pandas' => Pandas DataFrame or None in case of error
+        output='raw'    => text or None in case of error
+        else            => None
 
         TODO: implement other formats for the result
         """
@@ -43,6 +45,8 @@ class API:
 
         if output=="pandas":
             return self._response_text_to_pandas(resp.text)
+        elif output=="raw":
+            return resp.text
         else:
             return None
 
@@ -59,19 +63,26 @@ class API:
         Expects the text to be formated like
         column1  column2  column3 ...
         value1   value2   value3 ...
-        and seperated by tabs (which is the current format of the server)"""
+        and seperated by tabs (which is the current format of the server)
+
+        OR text formated as a HTML table"""
         data = []
-        lines = text.split('\n')
-        header = lines[0].split('\t')
 
-        for i in range(1,len(lines)):
-            args = [x.replace(',', '.') for x in lines[i].split('\t')]
-            if args[-1]=="Bad":
-                self._log("Got error status on data, probably caused by a wrong tagname")
-                return None
-            data.append(args)
+        if text.find('<table>')<0:
+            lines = text.split('\n')
+            header = lines[0].split('\t')
+            for i in range(1,len(lines)):
+                args = [x.replace(',', '.') for x in lines[i].split('\t')]
+                if args[-1]=="Bad":
+                    self._log("Got error status on data, probably caused by a wrong tagname")
+                    return None
+                data.append(args)
 
-        result = pd.DataFrame(data, columns=header)
+            result = pd.DataFrame(data, columns=header)
+        else:
+            return pd.read_html(text)
+
+
         return result
 
     def get_curr_val(self, tagname):
@@ -147,6 +158,24 @@ class API:
         params = {'tagnaam':tagname, 'timestamp':stimestamp}
         return self._get_request_result(url, params)
 
+    def get_lims(self, mpoint, analysis,  start, end):
+        """Wrapper on the get lims Wrapper
+
+        INPUT
+        mpoint   : monsterpunt code
+        analysis : analysis code
+        start    : start date (datetime)
+        end      : end date (datetime)
+
+        OUTPUT
+        Pandas dataframe or None in case of error
+        """
+        url = ww.URL_GET_LIMS
+        sstart = start.strftime("%d-%m-%Y")
+        send = end.strftime("%d-%m-%Y")
+        params = {'monsterpunt':mpoint, 'analyse':analysis, 'starttijd':sstart, 'eindtijd':send}
+        return self._get_request_result(url, params)
+
     def print_log(self):
         """Prints the logbook as seperated lines"""
         for line in self._logbook:
@@ -162,7 +191,8 @@ if __name__=="__main__":
     #get trend
     #start = datetime.datetime(2015,1,1)
     #end = datetime.datetime(2015,12,31)
-    #df2 = api.get_trend(tagname='VVZ1GA01GM001_VD', alist='GAS-DW-VD', start=start, end=end)
+    #df2 = api.get_trend(tagname='2W325KM01TIT001', alist='GAS-DW-VD', start=start, end=end)
+    #print df2
 
     #get trend pivot
     #start = datetime.datetime(2015,1,1)
@@ -170,9 +200,15 @@ if __name__=="__main__":
     #df3 = api.get_trend_pivot(tagname='VVZ1GA01GM001_VD', alist='GAS-DW-VD', start=start, end=end)
     #print df3
 
-    testdate = datetime.datetime(2016,5,12,19,0)
-    print testdate
-    df4 = api.get_time_val("2W325WK01FIT001", testdate) #werkt nog niet goed!
-    print df4
+    #testdate = datetime.datetime(2016,5,12,19,0)
+    #print testdate
+    #df4 = api.get_time_val("2W325KM01TIT001", testdate) #werkt nog niet goed!
+    #print df4
+
+    #start = datetime.datetime(2005,7,1)
+    #end = datetime.datetime(2015,7,11)
+    #df5 = api.get_lims("PLD-RW-006", "MONTIJD", start, end)
+
+    #print df5
 
     api.print_log()
