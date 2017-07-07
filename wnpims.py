@@ -33,7 +33,6 @@ class API:
         self._log("starting request to %s" % finalurl)
 
         resp = requests.get(finalurl)
-        print resp.text
         if resp.status_code != 200:
             self._log("Got statuscode %s" % resp.status_code)
             return None
@@ -66,7 +65,7 @@ class API:
         header = lines[0].split('\t')
 
         for i in range(1,len(lines)):
-            args = lines[i].split('\t')
+            args = [x.replace(',', '.') for x in lines[i].split('\t')]
             if args[-1]=="Bad":
                 self._log("Got error status on data, probably caused by a wrong tagname")
                 return None
@@ -173,6 +172,7 @@ if __name__=="__main__":
 
     testdate = datetime.datetime(2016,5,12,19,0)
     print testdate
-    df4 = api.get_time_val("2W325WK01FIT001", testdate) #werkt nog niet goed! 
+    df4 = api.get_time_val("2W325WK01FIT001", testdate) #werkt nog niet goed!
+    print df4
 
     api.print_log()
