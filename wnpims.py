@@ -70,9 +70,9 @@ class API:
 
         if text.find('<table>')<0:
             lines = text.split('\n')
-            header = lines[0].split('\t')
+            header = [x.replace('\r','') for x in lines[0].split('\t')]
             for i in range(1,len(lines)):
-                args = [x.replace(',', '.') for x in lines[i].split('\t')]
+                args = [x.replace(',', '.').replace('\r', '') for x in lines[i].split('\t')]
                 if args[-1]=="Bad":
                     self._log("Got error status on data, probably caused by a wrong tagname")
                     return None
