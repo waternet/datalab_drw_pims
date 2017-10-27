@@ -30,7 +30,7 @@ class API:
 
         TODO: implement other formats for the result
         """
-        finalurl = url + "?%s" % urllib.urlencode(params)
+        finalurl = url + "?%s" % urllib.parse.urlencode(params)
 
         self._log("starting request to %s" % finalurl)
 
@@ -179,7 +179,7 @@ class API:
     def print_log(self):
         """Prints the logbook as seperated lines"""
         for line in self._logbook:
-            print line
+            print(line)
 
 # EXAMPLES
 if __name__=="__main__":
@@ -187,6 +187,8 @@ if __name__=="__main__":
 
     #get current value
     #df1 = api.get_curr_val("VVZ1GA01GM00__VD")
+
+    #print(df1)
 
     #get trend
     #start = datetime.datetime(2015,1,1)
@@ -198,17 +200,17 @@ if __name__=="__main__":
     #start = datetime.datetime(2015,1,1)
     #end = datetime.datetime(2015,12,31)
     #df3 = api.get_trend_pivot(tagname='VVZ1GA01GM001_VD', alist='GAS-DW-VD', start=start, end=end)
-    #print df3
+    #print(df3)
 
     #testdate = datetime.datetime(2016,5,12,19,0)
     #print testdate
     #df4 = api.get_time_val("2W325KM01TIT001", testdate) #werkt nog niet goed!
-    #print df4
+    #print(df4)
 
-    #start = datetime.datetime(2005,7,1)
-    #end = datetime.datetime(2015,7,11)
-    #df5 = api.get_lims("PLD-RW-006", "MONTIJD", start, end)
+    start = datetime.datetime(2005,7,1)
+    end = datetime.datetime(2015,7,11)
+    df5 = api.get_lims("PLD-RW-006", "MONTIJD", start, end)
 
-    #print df5
+    print(df5)
 
     api.print_log()
