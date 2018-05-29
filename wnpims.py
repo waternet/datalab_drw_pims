@@ -1,4 +1,12 @@
-import requests, urllib, datetime
+try:
+    from urllib.parse import urlencode
+    from urllib.request import urlopen, Request
+    from urllib.error import HTTPError
+except ImportError:
+    from urllib import urlencode
+    from urllib2 import urlopen, Request, HTTPError
+
+import datetime
 import pandas as pd
 import ww #temp to hide urls
 
@@ -30,23 +38,28 @@ class API:
 
         TODO: implement other formats for the result
         """
-        finalurl = url + "?%s" % urllib.parse.urlencode(params)
+        finalurl = url + "?%s" % urlencode(params)
 
         self._log("starting request to %s" % finalurl)
 
-        resp = requests.get(finalurl)
-        if resp.status_code != 200:
-            self._log("Got statuscode %s" % resp.status_code)
+        req = Request(finalurl)
+        try:
+            resp = urlopen(Request(finalurl))
+        except urllib.error.HTTPError as e:
+            self._log("Got statuscode %s" % e.code)
+            self._log(e.read())
             return None
 
-        if resp.text.find('<title>Error</title>') > -1:
+        text = resp.read().decode('utf-8')
+
+        if text.find('<title>Error</title>') > -1:
             self._log("Got error status from the server")
             return None
 
         if output=="pandas":
-            return self._response_text_to_pandas(resp.text)
+            return self._response_text_to_pandas(text)
         elif output=="raw":
-            return resp.text
+            return text
         else:
             return None
 
